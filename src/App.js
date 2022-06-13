@@ -11,9 +11,10 @@ function App() {
 
   const [amount, setAmount] = useState(1);
   const [exChangeRate, setExChangeRate] = useState(0);
-  const [checkfromCurrency, setCheckfromCurrency] = useState(true);
 
+  const [checkfromCurrency, setCheckfromCurrency] = useState(true);
   let fromAmount, toAmount;
+
   if (checkfromCurrency) {
     fromAmount = amount;
     toAmount = (amount * exChangeRate).toFixed(2);
@@ -21,19 +22,28 @@ function App() {
     toAmount = amount;
     fromAmount = (amount / exChangeRate).toFixed(2);
   }
+
   // fecth = ร้องขอ
-  // useEffect check ว่าต้องการให้เกิดการเปลัี่ยนแปลงอะไร
+  // useEffect check ว่าต้องการให้เกิดการเปลี่ยนแปลงอะไร
   useEffect(() => {
-    const url = `https://v6.exchangerate-api.com/v6/307b2962076badb27e7c5d9a/latest/${fromCurrency}`;
+    const url = `https://api.exchangerate-api.com/v4/latest/${fromCurrency}`;
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        setCurrencyChoice([...Object.keys(data.conversion_rates)]);
-        setExChangeRate(data.conversion_rates[toCurrency]);
+        setCurrencyChoice([...Object.keys(data.rates)]);
+        setExChangeRate(data.rates[toCurrency]);
       });
-
-    // [] fecth ข้อมูลแค่ครั้งเดียวในตอน render
+    // []  ข้อมูลแค่ครั้งเดียวในตอน render
   }, [fromCurrency, toCurrency]);
+
+  const amountFromCurrency = (e) => {
+    setAmount(e.target.value);
+    setCheckfromCurrency(true);
+  };
+  const amountToCurrency = (e) => {
+    setAmount(e.target.value);
+    setCheckfromCurrency(false);
+  };
 
   return (
     <div>
@@ -46,14 +56,18 @@ function App() {
           selectCurrency={fromCurrency}
           changeCurrency={(e) => setFromCurrency(e.target.value)}
           amount={fromAmount}
+          onChangeAmount={amountFromCurrency}
         />
+
         <div className="equal"> = </div>
-        {/* ปลานทาง */}
+
+        {/* ปลายทาง */}
         <Currency
           currencyChoice={currencyChoice}
           selectCurrency={toCurrency}
           changeCurrency={(e) => setToCurrency(e.target.value)}
           amount={toAmount}
+          onChangeAmount={amountToCurrency}
         />
       </div>
     </div>
